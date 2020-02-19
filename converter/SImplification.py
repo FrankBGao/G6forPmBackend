@@ -110,16 +110,13 @@ def rewritelog(loginput, newgrouplist):
                 newTrace.append(trace[i])
                 i = i + 1
 
-
-
-
         newlog.append(newTrace)
     xes_exporter.export_log(newlog, os.path.join("converter", "SimplifiedLog.xes"))
     dfg = dfg_factory.apply(newlog)
     this_data = dfg_to_g6.dfg_to_g6(dfg)
-    print(this_data)
-    dfg_gv1 = dfg_vis_fact.apply(dfg, newlog, parameters={"format": "svg"})
-    dfg_vis_fact.view(dfg_gv1)
+    # print(this_data)
+    # dfg_gv1 = dfg_vis_fact.apply(dfg, newlog, parameters={"format": "svg"})
+    # dfg_vis_fact.view(dfg_gv1)
     return this_data
 
 
