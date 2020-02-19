@@ -59,7 +59,17 @@ def rewritelog(loginput, newgrouplist):
     #                 ["['MED_Ciprobay', 'MED_Zienam']", "group5"]
     #                 ]
     newlog = EventLog()
-    newgrouplist = [[str(newgrouplist["activities"]), newgrouplist["groupName"]]]
+    # newgrouplist = [[str(newgrouplist["activities"]), newgrouplist["groupName"]]]
+    # print(newgrouplist)
+    newlog = EventLog()
+    print(newgrouplist)
+    print("group details")
+    print(newgrouplist['groupName'])
+    print(newgrouplist['activities'])
+    findpattern = newgrouplist['activities']
+    replacepattern = newgrouplist['groupName']
+
+
     for trace in log:
         newTrace = Trace()
         for attr in trace.attributes:
@@ -70,45 +80,47 @@ def rewritelog(loginput, newgrouplist):
         while i < len(trace):
             replace_event_index_i = False
 
-            for group in newgrouplist:
-                findpattern = eval(group[0])
-                replacepattern = group[1]
+            #for group in newgrouplist:
 
-                if len(findpattern) < (len(trace) - i):
-                    corresponding_event_sequence = trace[i:i + len(findpattern)]
-                    timestamp_i = trace[i]["time:timestamp"].timestamp()
-                    timestamp_j = trace[i + len(findpattern) - 1]["time:timestamp"].timestamp()
-                    diff = timestamp_j - timestamp_i
-                    if diff < 3000:
-                        corresponding_event_sequence = sorted([x["concept:name"] for x in corresponding_event_sequence])
-                        if findpattern == corresponding_event_sequence:
-                            '''
-                            for attr in trace.attributes:
-                                print("trace att = ", trace.attributes[attr], "pattern = ", corresponding_event_sequence)
-                            '''
-                            replace_event_index_i = True
-                            replaced_something = True
-                            new_event = Event()
-                            new_event["concept:name"] = replacepattern
-                            new_event["time:timestamp"] = trace[i]["time:timestamp"]
-                            newTrace.append(new_event)
-                            i = i + len(findpattern)
-                            break
+            #findpattern = eval(group[0])
+            #replacepattern = group[1]
+
+            if len(findpattern) < (len(trace) - i):
+                corresponding_event_sequence = trace[i:i + len(findpattern)]
+                timestamp_i = trace[i]["time:timestamp"].timestamp()
+                timestamp_j = trace[i+len(findpattern)-1]["time:timestamp"].timestamp()
+                diff = timestamp_j - timestamp_i
+                if diff < 3000:
+                    corresponding_event_sequence = sorted([x["concept:name"] for x in corresponding_event_sequence])
+                    if findpattern == corresponding_event_sequence:
+                        '''
+                        for attr in trace.attributes:
+                            print("trace att = ", trace.attributes[attr], "pattern = ", corresponding_event_sequence)
+                        '''
+                        replace_event_index_i = True
+                        replaced_something = True
+                        new_event = Event()
+                        new_event["concept:name"] = replacepattern
+                        new_event["time:timestamp"] = trace[i]["time:timestamp"]
+                        newTrace.append(new_event)
+                        i = i + len(findpattern)
+                        break
 
             if replace_event_index_i == False:
                 newTrace.append(trace[i])
                 i = i + 1
 
+
+
+
         newlog.append(newTrace)
-    xes_exporter.export_log(newlog, os.path.join("SimplifiedLog.xes"))
-    return newlog
-
-
-def execute_script1():
-    aa = time.time()
-    inputFile = "C:\\Users\\shankar\\PycharmProjects\\InformScripts\\Data\\kngNew0.csv"
-    df = pd.read_csv(inputFile, sep=";", quotechar="\"")
-    bb = time.time()
+    xes_exporter.export_log(newlog, os.path.join("converter", "SimplifiedLog.xes"))
+    dfg = dfg_factory.apply(newlog)
+    this_data = dfg_to_g6.dfg_to_g6(dfg)
+    print(this_data)
+    dfg_gv1 = dfg_vis_fact.apply(dfg, newlog, parameters={"format": "svg"})
+    dfg_vis_fact.view(dfg_gv1)
+    return this_data
 
 
 if __name__ == "__main__":

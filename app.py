@@ -19,9 +19,9 @@ logging.basicConfig(level=logging.INFO)
 
 logger = logging.getLogger('HELLO WORLD')
 
-log_path = os.path.join("exportedLog.xes")
-log = xes_import_factory.apply(log_path)
-log = sorting.sort_timestamp(log)
+# log_path = os.path.join("exportedLog.xes")
+# log = xes_import_factory.apply(log_path)
+# log = sorting.sort_timestamp(log)
 
 graph_data = []
 current_log_file_name = ""
@@ -78,13 +78,14 @@ def fileUpload():
 @app.route(url_top + '/group', methods=['POST'])
 def group_activity():
     if request.method == 'POST':
-        global current_log_file_name
+        global current_log_file_name,graph_data
         group = request.get_json()
         newlog = rewritelog(current_log_file_name, group)
-        dfg = dfg_factory.apply(newlog)
-        this_data = dfg_to_g6.dfg_to_g6(dfg)
-
-        return jsonify(this_data)
+        # dfg = dfg_factory.apply(newlog)
+        # this_data = dfg_to_g6.dfg_to_g6(dfg)
+        #
+        # graph_data = this_data
+        return jsonify(newlog)
 
 
 def allowed_file(filename):
