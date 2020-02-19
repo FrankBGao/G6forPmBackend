@@ -39,11 +39,15 @@ def get_groups(log):
                 i = j + 1
                 grouplist[pattern] += 1
 
-    #print(grouplist)
+    # print(grouplist)
     return grouplist
 
 
-def rewritelog(newgrouplist):
+def rewritelog(loginput, newgrouplist):
+    log = xes_import_factory.apply(loginput)
+    log = sorting.sort_timestamp(log)
+    # print(log)
+
     # newgrouplist = [["['MED_Arterenol         ml', 'MED_Lasix             ml']", "group1"],
     #                 ["['MED_Arterenol         ml', 'MED_Hydrocortison     ml']", "group2"],
     #                 ["['MED_Arterenol         ml', 'MED_Arterenol         ml']", "group3"],
@@ -55,7 +59,7 @@ def rewritelog(newgrouplist):
     #                 ["['MED_Ciprobay', 'MED_Zienam']", "group5"]
     #                 ]
     newlog = EventLog()
-
+    newgrouplist = [[str(newgrouplist["activities"]), newgrouplist["groupName"]]]
     for trace in log:
         newTrace = Trace()
         for attr in trace.attributes:
@@ -122,15 +126,16 @@ if __name__ == "__main__":
 
     '''
 
+
 def uselog(loginput):
     log = xes_import_factory.apply(loginput)
     log = sorting.sort_timestamp(log)
-    print(log)
+    # print(log)
     dfg = dfg_factory.apply(log)
     dfg_gv = dfg_vis_fact.apply(dfg, log, parameters={"format": "svg"})
     this_data = dfg_to_g6.dfg_to_g6(dfg)
 
-    dfg_vis_fact.view(dfg_gv)
+    # dfg_vis_fact.view(dfg_gv)
     return this_data
 
     '''grouplist = get_groups(log)

@@ -3,8 +3,7 @@ from pm4py.objects.log.util import sorting
 from pm4py.visualization.dfg import factory as dfg_vis_fact
 from pm4py.algo.discovery.dfg import factory as dfg_factory
 from werkzeug.utils import secure_filename
-from converter.SImplification import uselog
-
+from converter.SImplification import uselog, rewritelog
 
 import converter.dfg_to_g6 as dfg_to_g6
 import converter.SImplification
@@ -25,6 +24,8 @@ log = xes_import_factory.apply(log_path)
 log = sorting.sort_timestamp(log)
 
 graph_data = []
+current_log_file_name = ""
+
 # dfg = dfg_factory.apply(log)
 # this_data = dfg_to_g6.dfg_to_g6(dfg)
 
@@ -40,6 +41,7 @@ def gain_graph():
     # this_data = dfg_to_g6.dfg_to_g6(dfg)
     global graph_data
     return jsonify(graph_data)
+
 
 UPLOAD_FOLDER = './'
 ALLOWED_EXTENSIONS = set(['csv', 'xes'])
@@ -61,20 +63,28 @@ def fileUpload():
             return redirect(request.url)
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
-            file.save(os.path.join( './' + filename))
+            file.save(os.path.join('./' + filename))
 
         this_data = uselog(os.path.join("./" + filename))
-        global graph_data
+        global graph_data, current_log_file_name
         graph_data = this_data
+        print(graph_data)
+        current_log_file_name = filename
         return jsonify(this_data)
 
     return ''
 
 
-@app.route(url_top + '/group', methods=['GET', 'POST'])
-def group():
+@app.route(url_top + '/group', methods=['POST'])
+def group_activity():
+    if request.method == 'POST':
+        global current_log_file_name
+        group = request.get_json()
+        newlog = rewritelog(current_log_file_name, group)
+        dfg = dfg_factory.apply(newlog)
+        this_data = dfg_to_g6.dfg_to_g6(dfg)
 
-    pass
+        return jsonify(this_data)
 
 
 def allowed_file(filename):
