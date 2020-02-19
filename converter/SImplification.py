@@ -22,7 +22,7 @@ from collections import Counter
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))))
 
 
-def get_groups():
+def get_groups(log):
     grouplist = Counter()
 
     for trace in log:
@@ -43,20 +43,17 @@ def get_groups():
     return grouplist
 
 
-def rewritelog():
-    log_path = os.path.join("exportedlog.xes")
-    log = xes_import_factory.apply(log_path)
-    log = sorting.sort_timestamp(log)
-    newgrouplist = [["['MED_Arterenol         ml', 'MED_Lasix             ml']", "group1"],
-                    ["['MED_Arterenol         ml', 'MED_Hydrocortison     ml']", "group2"],
-                    ["['MED_Arterenol         ml', 'MED_Arterenol         ml']", "group3"],
-                    ["['MED_Arterenol         ml', 'MED_Arterenol         ml', 'MED_Arterenol         ml']", "group6"],
-                    [
-                        "['MED_Arterenol         ml', 'MED_Arterenol         ml', 'MED_Arterenol         ml', 'MED_Arterenol         ml']",
-                        "group7"],
-                    ["['MED_Arterenol         ml', 'MED_Recuronium        ml']", "group4"],
-                    ["['MED_Ciprobay', 'MED_Zienam']", "group5"]
-                    ]
+def rewritelog(newgrouplist):
+    # newgrouplist = [["['MED_Arterenol         ml', 'MED_Lasix             ml']", "group1"],
+    #                 ["['MED_Arterenol         ml', 'MED_Hydrocortison     ml']", "group2"],
+    #                 ["['MED_Arterenol         ml', 'MED_Arterenol         ml']", "group3"],
+    #                 ["['MED_Arterenol         ml', 'MED_Arterenol         ml', 'MED_Arterenol         ml']", "group6"],
+    #                 [
+    #                     "['MED_Arterenol         ml', 'MED_Arterenol         ml', 'MED_Arterenol         ml', 'MED_Arterenol         ml']",
+    #                     "group7"],
+    #                 ["['MED_Arterenol         ml', 'MED_Recuronium        ml']", "group4"],
+    #                 ["['MED_Ciprobay', 'MED_Zienam']", "group5"]
+    #                 ]
     newlog = EventLog()
 
     for trace in log:
@@ -124,14 +121,25 @@ if __name__ == "__main__":
         de_dup = dd['concept:name'].loc[(dd['concept:name'].shift() != dd['concept:name']).any(axis=1)]
 
     '''
+
+def uselog(loginput):
+    log = xes_import_factory.apply(loginput)
+    log = sorting.sort_timestamp(log)
+    print(log)
     dfg = dfg_factory.apply(log)
     dfg_gv = dfg_vis_fact.apply(dfg, log, parameters={"format": "svg"})
-    dfg_vis_fact.view(dfg_gv)
+    this_data = dfg_to_g6.dfg_to_g6(dfg)
 
-    grouplist = get_groups()
-    newlog = rewritelog()
+    dfg_vis_fact.view(dfg_gv)
+    return this_data
+
+    '''grouplist = get_groups(log)
+    newlog = rewritelog(log)
     dfg = dfg_factory.apply(newlog)
     this_data = dfg_to_g6.dfg_to_g6(dfg)
     print(this_data)
     dfg_gv1 = dfg_vis_fact.apply(dfg, newlog, parameters={"format": "svg"})
     dfg_vis_fact.view(dfg_gv1)
+
+    return this_data
+    '''
